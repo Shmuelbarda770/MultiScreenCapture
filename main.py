@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 import mss
 from pynput import mouse
+from multiprocessing import Process
 from src.utils.read_config import config
 
 class ScreenRecorder:
@@ -94,10 +95,12 @@ if __name__ == "__main__":
         filename = f"screen_monitor_{i}.mp4"
         recorder = ScreenRecorder(output_file=filename, fps=config.data.fps, monitor_index=i)
         recorders.append(recorder)
-
     try:
+        processes = []
         for recorder in recorders:
-            recorder.start_recording()
+            p = Process(target=recorder.start_recording,daemon=True)
+            p.start()
+            processes.append(p)
     except KeyboardInterrupt:
         print("Stopped all recordings")
         for recorder in recorders:
